@@ -7,6 +7,7 @@
 
 #include "Taster.h"
 #include "Led.h"
+#include "Encoder.h"
 
 #include "cli.h"
 
@@ -49,6 +50,9 @@ static void cmd_test(const char* _data);
 static void cmd_taster(const char* _data);
 static void cmd_ledX_on(const char* _data);
 static void cmd_ledX_off(const char* _data);
+static void cmd_get_LM35(const char* _data);
+static void cmd_get_poti(const char* _data);
+static void cmd_get_encoder(const char* _data);
 
 
 //================================================================================================================================
@@ -64,6 +68,9 @@ const struct {
 	{"TASTER", &cmd_taster, "Gibt die Tasterzustaende aus"},
 	{"LED_ON", &cmd_ledX_on, "Schaltet LEDX an : LED_ON X"},
 	{"LED_OFF", &cmd_ledX_off, "Schaltet LEDX aus : LED_OFF X"},
+	{"GET_LM35", &cmd_get_LM35, "Gibt die Temperatur aus"},
+	{"GET_POTI", &cmd_get_poti, "Gibt die Spannung des Potis aus"},
+	{"GET_ENC", &cmd_get_encoder, "Gibt den Wert des Drehgebers aus"},
 };
 
 
@@ -274,14 +281,16 @@ static void cmd_taster(const char* _data){
 
 //================================================================================================================================
 // Funktion:		cmd_ledxON
-//					SChaltet LEDX an
+//					Schaltet LEDX an
 // Parameter:		_data: Zeichenkette mit Parametern des Befehls
 // Rückgabewert:	keine
 //================================================================================================================================
 static void cmd_ledX_on(const char* _data){
-	char data = *_data;
-	int i_data = data - '0';
-	switch(i_data){
+	//char data = *_data;
+	//int i_data = data - '0'; //switch(i_data)
+
+	uint8_t temp = atoi(_data); //switch temp
+	switch(temp){
 		case 1:
 			Led1_On();
 			break;
@@ -305,6 +314,7 @@ static void cmd_ledX_on(const char* _data){
 			break;
 		case 8:
 			Led8_On();
+			break;
 		default:
 			print_string("Falsche Eingabe");
 			print_string(NEXT_LINE);
@@ -319,9 +329,11 @@ static void cmd_ledX_on(const char* _data){
 // Rückgabewert:	keine
 //================================================================================================================================
 static void cmd_ledX_off(const char* _data){
-	char data = *_data;
-	int i_data = data - '0';
-	switch(i_data){
+	//char data = *_data;
+	//int i_data = data - '0'; //switch(i_data)
+
+	uint8_t temp = atoi(_data); //switch temp
+	switch(temp){
 		case 1:
 			Led1_Off();
 			break;
@@ -345,9 +357,62 @@ static void cmd_ledX_off(const char* _data){
 			break;
 		case 8:
 			Led8_Off();
+			break;
 		default:
 			print_string("Falsche Eingabe");
 			print_string(NEXT_LINE);
 			break;
 	}
+}
+
+//================================================================================================================================
+// Funktion:		cmd_get_LM35
+//					Gibt Temperatur aus
+// Parameter:		_data: Zeichenkette mit Parametern des Befehls
+// Rückgabewert:	keine
+//================================================================================================================================
+static void cmd_get_LM35(const char* _data){
+	print_string("Temperatur:");
+	print_string(NEXT_LINE);
+	adc_get_LM35(); //measure once without interpretation
+	uint16_t i_val = adc_get_LM35();
+	double d_val = i_val*5;	// * V_Ref
+	d_val /= 256;			// / Bit_Resolution 2^8
+	double temperature = d_val / 0.01;	//calculate temperature
+	sprintf(rs232_buffer, "%.1lf 'C", temperature);
+	print_string(rs232_buffer);
+	print_string(NEXT_LINE);
+}
+
+//================================================================================================================================
+// Funktion:		cmd_get_poti
+//					Gibt Poti aus
+// Parameter:		_data: Zeichenkette mit Parametern des Befehls
+// Rückgabewert:	keine
+//================================================================================================================================
+static void cmd_get_poti(const char* _data){
+	print_string("Spannung am Poti:");
+	print_string(NEXT_LINE);
+	adc_get_poti(); //measure once without interpretation
+	uint16_t i_val = adc_get_poti();
+	double d_val = i_val*5;		// * V_Ref
+	d_val /= 256;				// / Bit_Resolution 2^8
+	sprintf(rs232_buffer, "%.2lfV", d_val);
+	print_string(rs232_buffer);
+	print_string(NEXT_LINE);
+}
+
+//================================================================================================================================
+// Funktion:		cmd_get_encoder
+//					Gibt Wert des Drehgebers aus
+// Parameter:		_data: Zeichenkette mit Parametern des Befehls
+// Rückgabewert:	keine
+//================================================================================================================================
+
+static void cmd_get_encoder(const char* _data){
+	print_string("Wert des Drehgebers:");
+	print_string(NEXT_LINE);
+	sprintf(rs232_buffer, "%i", encoder_get());
+	print_string(rs232_buffer);
+	print_string(NEXT_LINE);
 }

@@ -17,6 +17,75 @@
  #include "Timer.h"
  #include "UART.h"
  #include "cli.h"
+ #include "Adc.h"
+ #include "Encoder.h"
+
+ void drehgeber1(void){
+	uart_init_rs();
+	Led_init();
+	Taster_init();
+	Timer_init();
+	line_interpreter_init(&uart_send_byte);
+	adc_init();
+	encoder_init();
+	sei();
+	uart_send(" Hallo INIT \r\n");
+
+	while(1){
+		if(uart_data_available()){
+			line_interpreter_get_data(uart_get_data());
+		}
+		encoder_process();
+	}
+ }
+
+ void blink4(void){
+	 uart_init_rs();
+	 Led_init();
+	 Taster_init();
+	 Timer_init();
+	 line_interpreter_init(&uart_send_byte);
+	 adc_init();
+	 sei();
+	 static enum{
+		 INIT = 0,
+		 ON = 1,
+		 OFF = 2,
+	 }Status = INIT;
+	 static uint16_t timer = 0;
+	 int timeout = 500;
+	 while(1){
+		 
+		 if(uart_data_available()){
+			 line_interpreter_get_data(uart_get_data());
+		 }
+		 switch(Status){
+			 case INIT:
+			 Led1_On();
+			 uart_send(" Hallo INIT \r\n");
+			 Status = ON;
+			 break;
+
+			 case ON:
+			 if ((getTick()-timer)>=timeout){
+				 timer = getTick();
+				 Led1_Off();
+				 //uart_send("OFF\r\n");
+				 Status = OFF;
+			 }
+			 break;
+
+			 case OFF:
+			 if ((getTick()-timer)>=timeout){
+				 timer = getTick();
+				 Led1_On();
+				 //uart_send("ON\r\n");
+				 Status = ON;
+			 }
+			 break;
+		 }
+	 }
+ }
 
   void blink3(void){
 	  uart_init_rs();
@@ -65,7 +134,7 @@
 	  }
   }
 
- /*
+ 
  void blink2(void){
 	uart_init_rs();
 	Led_init();
@@ -111,8 +180,8 @@
 		}
 	}
  }
- */
- /*
+ 
+ 
  void blink1(void){
 	uart_init();
 	uart_send_string("START_");
@@ -154,7 +223,7 @@
 			}
 		}
 	}
-	*/
+	
 	
  void Ampelschaltung(void){
 
