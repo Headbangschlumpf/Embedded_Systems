@@ -34,9 +34,7 @@
 	}Status = ONE;
 	
 	uint8_t input = PINC & 0b11000000; // delete not used PINC input
-	input = input >> 6;	// bit shift >> 6 to make interpretaion easier
-	PORTB = input;
-	
+	input = input >> 6;	// bit shift >> 6 to make interpretation easier
 
 	switch(Status){
 
@@ -73,8 +71,8 @@
 			}
 			if (input == 0){
 				Status = ONE;
-				//increment
-				counter--;
+				//counter++;	//increment
+				counter--;		// adjust direction to count down counter clockwise
 			}
 			break;
 
@@ -99,8 +97,8 @@
 		case SEVEN:
 			if (input == 0){
 				Status = ONE;
-				//decrement
-				counter++;
+				//counter--;	//decrement
+				counter++;		// adjust direction to count up clockwise
 			}
 			if (input == 3){
 				Status = SIX;

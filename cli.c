@@ -410,9 +410,7 @@ static void cmd_get_poti(const char* _data){
 //================================================================================================================================
 
 static void cmd_get_encoder(const char* _data){
-	print_string("Wert des Drehgebers:");
-	print_string(NEXT_LINE);
-	sprintf(rs232_buffer, "%i", encoder_get());
+	sprintf(rs232_buffer, "Wert des Encoders: %i", encoder_get());
 	print_string(rs232_buffer);
 	print_string(NEXT_LINE);
 }
