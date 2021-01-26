@@ -10,7 +10,7 @@
 #include "Adc.h"
 
 // needed registers start at 0x7C: ADMUX(0x7C); ADCL(0x78); ADCH(0x79); ADCSRA(0x7A);
-typedef struct adc_t{			// reg
+typedef struct adc_t{		// reg
 
 	uint8_t adcl		  ; // ADCL
 
